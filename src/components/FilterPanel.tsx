@@ -65,10 +65,11 @@ export default function FilterPanel({ isOpen, onClose, onCollapseChange, setSear
         const response = await fetch('/api/universities?limit=10000')
         const data = await response.json()
         // Tüm üniversitelerin tüm bölümlerini topla ve temizle
-        const departments = Array.from(new Set(
+        let departments = Array.from(new Set(
           (data.universities || [])
             .flatMap((u: { departments?: { name: string }[] }) => (u.departments || []).map((d: { name: string }) => getCleanDepartmentName(d.name)))
-        )).sort((a, b) => a.localeCompare(b, 'tr'))
+        )) as string[];
+        departments = departments.sort((a, b) => a.localeCompare(b, 'tr'));
         setAllDepartments(departments)
       } catch (error) {
         setAllDepartments([])
