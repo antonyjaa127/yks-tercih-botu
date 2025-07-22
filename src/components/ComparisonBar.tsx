@@ -57,10 +57,10 @@ export default function ComparisonBar() {
                 className="flex-shrink-0 bg-gray-50 rounded-lg p-2 flex items-center space-x-2 min-w-[180px] max-w-[200px]"
               >
                 <div className="w-6 h-6 bg-gray-200 rounded flex items-center justify-center flex-shrink-0">
-                  {item.logo ? (
+                  {item.university.logo ? (
                     <img 
-                      src={item.logo} 
-                      alt={item.universityName} 
+                      src={item.university.logo} 
+                      alt={item.university.name} 
                       className="w-4 h-4 rounded"
                     />
                   ) : (
@@ -70,10 +70,10 @@ export default function ComparisonBar() {
                 
                 <div className="flex-1 min-w-0">
                   <h4 className="text-xs font-medium text-gray-900 truncate">
-                    {item.universityName}
+                    {item.university.name}
                   </h4>
                   <p className="text-xs text-gray-500 truncate">
-                    {item.departmentName}
+                    {item.department.name}
                   </p>
                 </div>
                 
