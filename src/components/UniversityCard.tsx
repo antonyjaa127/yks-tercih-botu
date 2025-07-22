@@ -39,7 +39,7 @@ export default function UniversityCard({
   department, 
   showDepartmentInfo = true 
 }: UniversityCardProps) {
-  const { comparisonItems, addToComparison, removeFromComparison } = useStore()
+  const { comparisonItems, addToComparison, removeFromComparison, preferenceList, addToPreferenceList, removeFromPreferenceList } = useStore()
   const isInComparison = comparisonItems.some(
     item => item.universityId === university.id && item.departmentId === department.id
   )
@@ -48,6 +48,21 @@ export default function UniversityCard({
       removeFromComparison(university.id, department.id)
     } else {
       addToComparison({
+        universityId: String(university.id),
+        departmentId: String(department.id),
+        university,
+        department
+      })
+    }
+  }
+  const isInPreferenceList = preferenceList.some(
+    item => item.universityId === university.id && item.departmentId === department.id
+  )
+  const handlePreferenceToggle = () => {
+    if (isInPreferenceList) {
+      removeFromPreferenceList(university.id, department.id)
+    } else {
+      addToPreferenceList({
         universityId: String(university.id),
         departmentId: String(department.id),
         university,
@@ -98,6 +113,16 @@ export default function UniversityCard({
           {isInComparison ? <Check className="w-4 h-4" /> : <Plus className="w-4 h-4" />}
         </button>
       </div>
+      {/* Tercih Listesi Butonu */}
+      <button
+        onClick={handlePreferenceToggle}
+        className={cn(
+          "mt-1 px-3 py-1 rounded-lg text-xs font-medium transition-colors",
+          isInPreferenceList ? "bg-green-50 text-green-700 border border-green-200" : "bg-gray-100 text-gray-700 hover:bg-blue-50 border border-gray-200"
+        )}
+      >
+        {isInPreferenceList ? "Tercih Listemden Çıkar" : "Tercih Listeme Ekle"}
+      </button>
       {/* Badges + Şehir + Parantezden çıkarılanlar */}
       <div className="flex flex-wrap gap-2 mb-1 items-center">
         {getUniversityTypeBadge()}

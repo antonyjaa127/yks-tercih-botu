@@ -4,6 +4,7 @@ import './globals.css'
 import Header from '@/components/Header'
 import ComparisonBar from '@/components/ComparisonBar'
 import ComparisonBarPaddingWrapper from '@/components/ComparisonBarPaddingWrapper'
+import PreferenceBar from '@/components/PreferenceBar'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -41,6 +42,7 @@ export default function RootLayout({
           {children}
         </ComparisonBarPaddingWrapper>
         <ComparisonBar />
+        <PreferenceBar />
       </body>
     </html>
   )

@@ -35,6 +35,12 @@ interface Store {
   setLoading: (loading: boolean) => void
   isLoadingMore: boolean
   setLoadingMore: (loading: boolean) => void
+  
+  // Tercih Listesi (Sepet)
+  preferenceList: ComparisonItem[];
+  addToPreferenceList: (item: ComparisonItem) => void;
+  removeFromPreferenceList: (universityId: string, departmentId: string) => void;
+  clearPreferenceList: () => void;
 }
 
 const initialFilters: SearchFilters = {
@@ -155,5 +161,25 @@ export const useStore = create<Store>((set, get) => ({
   isLoading: false,
   setLoading: (loading) => set({ isLoading: loading }),
   isLoadingMore: false,
-  setLoadingMore: (loading) => set({ isLoadingMore: loading })
+  setLoadingMore: (loading) => set({ isLoadingMore: loading }),
+  
+  // Tercih Listesi (Sepet)
+  preferenceList: [],
+  addToPreferenceList: (item) =>
+    set((state) => {
+      const exists = state.preferenceList.some(
+        (pref) => pref.universityId === item.universityId && pref.departmentId === item.departmentId
+      )
+      if (!exists) {
+        return { preferenceList: [...state.preferenceList, item] }
+      }
+      return state
+    }),
+  removeFromPreferenceList: (universityId, departmentId) =>
+    set((state) => ({
+      preferenceList: state.preferenceList.filter(
+        (item) => !(item.universityId === universityId && item.departmentId === departmentId)
+      )
+    })),
+  clearPreferenceList: () => set({ preferenceList: [] }),
 })) 
