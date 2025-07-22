@@ -67,7 +67,7 @@ export default function FilterPanel({ isOpen, onClose, onCollapseChange, setSear
         // Tüm üniversitelerin tüm bölümlerini topla ve temizle
         const departments = Array.from(new Set(
           (data.universities || [])
-            .flatMap((u: any) => (u.departments || []).map((d: any) => getCleanDepartmentName(d.name)))
+            .flatMap((u: { departments?: { name: string }[] }) => (u.departments || []).map((d: { name: string }) => getCleanDepartmentName(d.name)))
         )).sort((a, b) => a.localeCompare(b, 'tr'))
         setAllDepartments(departments)
       } catch (error) {
