@@ -12,12 +12,12 @@ export default function PreferenceBar() {
 
   return (
     <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 shadow-lg z-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="py-4">
+      <div className="max-w-7xl mx-auto px-2 sm:px-4 lg:px-6">
+        <div className="py-2">
           {/* Header Row */}
-          <div className="flex items-center justify-between mb-3">
+          <div className="flex items-center justify-between mb-2">
             <div className="flex items-center space-x-2">
-              <span className="text-sm font-medium text-gray-700">
+              <span className="text-xs font-medium text-gray-700">
                 Tercih Listem ({preferenceList.length})
               </span>
               <button
@@ -30,25 +30,25 @@ export default function PreferenceBar() {
             <Link
               href="/tercihlerim"
               className={cn(
-                "flex items-center space-x-2 px-4 py-2 rounded-lg font-medium transition-colors flex-shrink-0 bg-blue-600 text-white hover:bg-blue-700"
+                "flex items-center space-x-2 px-3 py-1 rounded-lg font-medium transition-colors flex-shrink-0 bg-blue-600 text-white hover:bg-blue-700 text-xs"
               )}
             >
-              <span className="text-sm">Tercih Listemi Gör</span>
+              <span>Tercih Listemi Gör</span>
               <BookOpen className="w-4 h-4" />
             </Link>
           </div>
           {/* Universities Row */}
-          <div className="flex space-x-2 overflow-x-auto scrollbar-hide">
+          <div className="flex space-x-1 overflow-x-auto scrollbar-hide">
             {preferenceList.map((item) => (
               <div
                 key={`${item.universityId}-${item.departmentId}`}
-                className="flex-shrink-0 bg-gray-50 rounded-lg p-2 flex items-center space-x-2 min-w-[180px] max-w-[200px]"
+                className="flex-shrink-0 bg-gray-50 rounded-lg p-1 flex items-center space-x-1 min-w-[120px] max-w-[150px]"
               >
                 <div className="flex-1 min-w-0">
-                  <h4 className="text-xs font-medium text-gray-900 truncate">
+                  <h4 className="text-[11px] font-medium text-gray-900 truncate">
                     {item.university.name}
                   </h4>
-                  <p className="text-xs text-gray-500 truncate">
+                  <p className="text-[10px] text-gray-500 truncate">
                     {item.department.name}
                   </p>
                 </div>

@@ -3,6 +3,7 @@
 import { useStore } from '@/store/useStore'
 import { X, BookOpen } from 'lucide-react'
 import Link from 'next/link'
+import UniversityCard from '@/components/UniversityCard'
 
 export default function PreferenceListPage() {
   const { preferenceList, removeFromPreferenceList, clearPreferenceList } = useStore()
@@ -24,7 +25,7 @@ export default function PreferenceListPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 pb-24">
+    <div className="min-h-screen bg-gray-50 pb-[72px]">
       <div className="max-w-3xl mx-auto px-4 py-8">
         <div className="flex items-center justify-between mb-6">
           <h1 className="text-2xl font-bold text-gray-900">Tercih Listem</h1>
@@ -37,18 +38,8 @@ export default function PreferenceListPage() {
         </div>
         <div className="grid gap-4">
           {preferenceList.map((item, idx) => (
-            <div key={`${item.universityId}-${item.departmentId}`} className="bg-white rounded-lg shadow p-4 flex items-center justify-between">
-              <div>
-                <h2 className="text-lg font-semibold text-gray-900">{item.university.name}</h2>
-                <p className="text-sm text-blue-600">{item.department.name}</p>
-              </div>
-              <button
-                onClick={() => removeFromPreferenceList(item.universityId, item.departmentId)}
-                className="p-2 hover:bg-gray-100 rounded-full transition-colors"
-                title="Listeden çıkar"
-              >
-                <X className="w-5 h-5 text-gray-400" />
-              </button>
+            <div key={`${item.universityId}-${item.departmentId}`}> 
+              <UniversityCard university={item.university} department={item.department} />
             </div>
           ))}
         </div>

@@ -368,7 +368,7 @@ function SearchPageContent() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 pb-[72px]">
       {/* Mobile Filter Backdrop */}
       {isFilterPanelOpen && (
         <div 
