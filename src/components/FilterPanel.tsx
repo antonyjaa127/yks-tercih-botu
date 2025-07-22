@@ -220,6 +220,18 @@ export default function FilterPanel({ isOpen, onClose, onCollapseChange, setSear
                         {scoreTypes.map(type => <option key={type.value} value={type.value}>{type.label}</option>)}
                       </select>
                     </div>
+                    {/* Ön Lisans / Lisans */}
+                    <div>
+                      <label className="block text-xs font-medium text-gray-800 opacity-80 mb-2">Öğrenim Türü</label>
+                      <div className="flex gap-2">
+                        {['lisans', 'onlisans'].map(level => (
+                          <label key={level} className="flex items-center gap-1 text-sm text-gray-800 opacity-80">
+                            <input type="checkbox" checked={searchFilters.educationLevels.includes(level)} onChange={() => handleMultiSelect('educationLevels', level)} />
+                            {level === 'lisans' ? 'Lisans' : 'Ön Lisans'}
+                          </label>
+                        ))}
+                      </div>
+                    </div>
                   </div>
                 )}
               </div>

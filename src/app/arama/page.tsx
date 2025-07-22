@@ -221,7 +221,6 @@ function SearchPageContent() {
   useEffect(() => {
     if (universities.length === 0 && !aiFiltersApplied) {
       performSearch(defaultFilters, true);
-      // setSearchFilters(defaultFilters); // Zincirleme tetiklenmeyi önlemek için kaldırıldı
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [aiFiltersApplied]);
