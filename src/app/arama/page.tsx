@@ -148,7 +148,7 @@ function SearchPageContent() {
         (filters.departmentNames && filters.departmentNames.length > 0)
 
       let result
-      let searchQuery = filters.query
+      const searchQuery = filters.query
       // if (filters.departmentNames && filters.departmentNames.length > 0) {
       //   searchQuery = filters.departmentNames[0]
       // }
