@@ -116,6 +116,7 @@ function SearchPageContent() {
   const [searchQuery, setSearchQuery] = useState(searchFilters.query || '')
   const [setIsFilterCollapsed] = useState<React.Dispatch<React.SetStateAction<boolean>>>(() => () => {})
   const [aiMetaText, setAiMetaText] = useState<{ aciklama?: string; neden_boyle?: string; oneriler?: string[]; filtre_ozet?: unknown } | null>(null);
+  const [aiFiltersApplied, setAiFiltersApplied] = useState(false);
 
   // Debounced search filters - 800ms delay
   const debouncedFilters = useDebounce(searchFilters, 800)
@@ -147,10 +148,14 @@ function SearchPageContent() {
         (filters.departmentNames && filters.departmentNames.length > 0)
 
       let result
+      let searchQuery = filters.query
+      if (filters.departmentNames && filters.departmentNames.length > 0) {
+        searchQuery = filters.departmentNames[0]
+      }
       if (hasAnyFilter) {
         // Filtreli arama
         result = await searchUniversities(
-          filters.query,
+          searchQuery,
           resetResults ? 0 : currentPage + 1,
           10,
           {
@@ -212,14 +217,14 @@ function SearchPageContent() {
     sortType: 'siralama', // defaultu başarı sırası
   };
 
-  // İlk yükleme: Sadece bir defa çalışsın
+  // İlk yükleme: Sadece bir defa çalışsın, AI filtreleri uygulanmadıysa
   useEffect(() => {
-    if (universities.length === 0) {
+    if (universities.length === 0 && !aiFiltersApplied) {
       performSearch(defaultFilters, true);
       // setSearchFilters(defaultFilters); // Zincirleme tetiklenmeyi önlemek için kaldırıldı
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [aiFiltersApplied]);
 
   // Filtreler değiştiğinde (debounced), sadece güncel filtrelerle istek at
   useEffect(() => {
@@ -315,6 +320,9 @@ function SearchPageContent() {
         oneriler: aiMetaObj.oneriler,
         filtre_ozet: aiMetaObj.filtre_uygula
       });
+      // AI'dan gelen filtrelerle arama sonuçlarını da güncelle
+      performSearch({ ...searchFilters, ...aiMetaObj.filtre_uygula }, true);
+      setAiFiltersApplied(true);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);

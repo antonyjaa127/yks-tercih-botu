@@ -275,9 +275,9 @@ export default function Home() {
               <Link href="/karsilastir" className="px-4 py-2 bg-white border border-gray-200 hover:bg-blue-50 hover:text-blue-600 hover:border-blue-300 rounded-lg transition-colors text-sm font-medium text-gray-700 shadow-sm">
                 ⚖️ Üniversite Karşılaştır
               </Link>
-              <button className="px-4 py-2 bg-white border border-gray-200 hover:bg-blue-50 hover:text-blue-600 hover:border-blue-300 rounded-lg transition-colors text-sm font-medium text-gray-700 shadow-sm">
+              <Link href="/rehber" className="px-4 py-2 bg-white border border-gray-200 hover:bg-blue-50 hover:text-blue-600 hover:border-blue-300 rounded-lg transition-colors text-sm font-medium text-gray-700 shadow-sm">
                 📚 Bölüm Rehberi
-              </button>
+              </Link>
             </div>
           </div>
         </div>

@@ -135,7 +135,45 @@ export async function POST(req: NextRequest) {
           role: 'user',
           parts: [
             {
-              text: `Aşağıdaki kullanıcı bilgilerine göre, üniversite tercih önerisi oluştur.\n\nKullanıcı Sıralaması: ${ranking}\nKullanıcı Hedefleri/Kriterleri: ${goals}\nFiltreler (anahtar ve açıklama): ${JSON.stringify(filtersWithDesc, null, 2)}\n\nAşağıda sistemde kullanılabilen tüm filtreler ve seçenekleri verilmiştir. Sadece bu seçenekler içinden seçim yapabilirsin, yeni değer üretme.\n\nFiltre seçenekleri:\n${JSON.stringify(FILTER_OPTIONS, null, 2)}\n\nÖzellikle departmentNames (bölüm adları) filtresini kullanarak öneri ve filtre_uygula kısmında sadece bu bölüm adları arasından seçim yap.\n\nStructured bir JSON output üret.\n\nOutput örneği:\n{\n  "oneriler": ["...", "..."],\n  "aciklama": "...",\n  "neden_boyle": "...",\n  "filtre_uygula": {\n    "scoreType": "...",\n    "minRank": ...,\n    "maxRank": ...,\n    "cities": [...],\n    "departmentNames": [...],\n    ...\n  }\n}\n\nSıralama filtresini belirlerken, kullanıcının sıralamasına göre mantıklı bir aralık seç (ör. 25000 için 10000-35000 gibi, çok dar veya çok geniş olmasın).\n\n***minRank ve maxRank alanlarını DOLDURMAK ZORUNDASIN. minRank mutlaka kullanıcının sıralamasından küçük, maxRank ise büyük olmalı.*** Sadece öneri metni değil, filtre_uygula alanında arama için kullanılacak filtreleri de döndür.\n\nAçıklama (aciklama) ve neden_boyle alanlarında, önerdiğin bölümlerin gelecekteki iş olanakları, Türkiye'deki sektörel durum, mesleğin geleceği ve kişisel/futuristik yorumlara da yer ver. İş imkanları, sektörün büyüme potansiyeli, yurtdışı olanakları gibi konularda da değerlendirme yap.\n\nYanıtı sadece geçerli bir JSON olarak döndür, başında/sonunda açıklama veya kod bloğu olmasın.`
+              text: `Aşağıdaki kullanıcı bilgilerine göre, üniversite tercih önerisi oluştur.
+
+Kullanıcı Sıralaması: ${ranking}
+Kullanıcı Hedefleri/Kriterleri: ${goals}
+Filtreler (anahtar ve açıklama): ${JSON.stringify(filtersWithDesc, null, 2)}
+
+Aşağıda sistemde kullanılabilen tüm filtreler ve seçenekleri verilmiştir. Sadece bu seçenekler içinden seçim yapabilirsin, yeni değer üretme.
+
+Filtre seçenekleri:
+${JSON.stringify(FILTER_OPTIONS, null, 2)}
+
+***Özellikle departmentNames (bölüm adları) filtresini doldurmak ZORUNDASIN. Kullanıcı hedeflerinde geçen meslek, bölüm, alan, program, kariyer veya ilgi alanı ile ilgili anahtar kelimeleri departmentNames filtresine ekle.***
+
+Eğer kullanıcı hedeflerinde birden fazla bölüm/meslek/alan varsa, hepsini departmentNames'e ekle. Eğer kullanıcı hedeflerinde bölüm/meslek yoksa, en popüler bölümlerden 3-5 tanesini departmentNames'e ekle.
+
+Structured bir JSON output üret.
+
+Output örneği:
+{
+  "oneriler": ["...", "..."],
+  "aciklama": "...",
+  "neden_boyle": "...",
+  "filtre_uygula": {
+    "scoreType": "...",
+    "minRank": ...,
+    "maxRank": ...,
+    "cities": [...],
+    "departmentNames": [...],
+    ...
+  }
+}
+
+Sıralama filtresini belirlerken, kullanıcının sıralamasına göre mantıklı bir aralık seç (ör. 25000 için 10000-35000 gibi, çok dar veya çok geniş olmasın).
+
+***minRank ve maxRank alanlarını DOLDURMAK ZORUNDASIN. minRank mutlaka kullanıcının sıralamasından küçük, maxRank ise büyük olmalı.*** Sadece öneri metni değil, filtre_uygula alanında arama için kullanılacak filtreleri de döndür.
+
+Açıklama (aciklama) ve neden_boyle alanlarında, önerdiğin bölümlerin gelecekteki iş olanakları, Türkiye'deki sektörel durum, mesleğin geleceği ve kişisel/futuristik yorumlara da yer ver. İş imkanları, sektörün büyüme potansiyeli, yurtdışı olanakları gibi konularda da değerlendirme yap.
+
+Yanıtı sadece geçerli bir JSON olarak döndür, başında/sonunda açıklama veya kod bloğu olmasın.`
             }
           ]
         }
@@ -164,6 +202,17 @@ export async function POST(req: NextRequest) {
       // Kod bloğu varsa temizle
       text = text.replace(/^```json|```$/g, '').trim();
       aiResult = JSON.parse(text);
+      // departmentNames boşsa veya goals içinde anahtar kelime varsa, goals'u departmentNames'e ekle
+      if (aiResult && aiResult.filtre_uygula) {
+        if (!aiResult.filtre_uygula.departmentNames || aiResult.filtre_uygula.departmentNames.length === 0) {
+          // goals içinden anahtar kelimeyi departmentNames'e ekle
+          if (goals && typeof goals === 'string' && goals.trim().length > 0) {
+            // Sadece ilk 1-2 kelimeyi al, büyük harf başlat, parantez ve özel karakterleri temizle
+            const cleanGoal = goals.split(/[,.!\n]/)[0].replace(/['"()\[\]]/g, '').trim();
+            aiResult.filtre_uygula.departmentNames = [cleanGoal.charAt(0).toUpperCase() + cleanGoal.slice(1)];
+          }
+        }
+      }
     } catch (e) {
       aiResult = { raw: data };
     }

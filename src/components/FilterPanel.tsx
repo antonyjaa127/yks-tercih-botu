@@ -20,6 +20,7 @@ export default function FilterPanel({ isOpen, onClose, onCollapseChange, setSear
   const [citiesLoading, setCitiesLoading] = useState(false)
   const [showScoreFilter, setShowScoreFilter] = useState(false)
   const [showRankFilter, setShowRankFilter] = useState(false)
+  const [allDepartments, setAllDepartments] = useState<string[]>([])
 
   // Açılır/kapanır filtreler için state
   const [openDropdown, setOpenDropdown] = useState<string | null>(null)
@@ -43,9 +44,42 @@ export default function FilterPanel({ isOpen, onClose, onCollapseChange, setSear
     fetchCities()
   }, [cities.length])
 
-  // Datasetten unique üniversite ve bölüm isimleri
+  // Parantez ve eklerden arındırılmış ana bölüm adını döndür
+  function getCleanDepartmentName(departmentName: string) {
+    let cleanName = departmentName;
+    // Parantez içindeki burs/dil/indirim bilgilerini kaldır
+    cleanName = cleanName.replace(/\((.*?)\)/g, '').trim();
+    // KPSS kelimesini kaldır
+    cleanName = cleanName.replace(/\s*KPSS\s*/gi, '').trim();
+    // Başında "İngilizce ", "Almanca ", "Fransızca " gibi dilleri kaldır
+    cleanName = cleanName.replace(/^(İngilizce|English|Almanca|German|Fransızca|Fransizca|French)\s+/i, '').trim();
+    // Fazla boşlukları temizle
+    cleanName = cleanName.replace(/\s+/g, ' ').trim();
+    return cleanName;
+  }
+
+  // Tüm bölüm başlıklarını API'den çek
+  useEffect(() => {
+    const fetchDepartments = async () => {
+      try {
+        const response = await fetch('/api/universities?limit=10000')
+        const data = await response.json()
+        // Tüm üniversitelerin tüm bölümlerini topla ve temizle
+        const departments = Array.from(new Set(
+          (data.universities || [])
+            .flatMap((u: any) => (u.departments || []).map((d: any) => getCleanDepartmentName(d.name)))
+        )).sort((a, b) => a.localeCompare(b, 'tr'))
+        setAllDepartments(departments)
+      } catch (error) {
+        setAllDepartments([])
+      }
+    }
+    fetchDepartments()
+  }, [])
+
   const universityNames = Array.from(new Set(universities.flatMap(u => u.name))).sort()
-  const departmentNames = Array.from(new Set(universities.flatMap(u => u.departments.map(d => d.name)))).sort()
+  // const departmentNames = Array.from(new Set(universities.flatMap(u => u.departments.map(d => d.name)))).sort()
+  const departmentNames = allDepartments
 
   // Sıralama tipi değiştiğinde Akademik filtrede inputların görünürlüğünü otomatik ayarla
   useEffect(() => {
@@ -186,18 +220,6 @@ export default function FilterPanel({ isOpen, onClose, onCollapseChange, setSear
                         {scoreTypes.map(type => <option key={type.value} value={type.value}>{type.label}</option>)}
                       </select>
                     </div>
-                    {/* Ön Lisans / Lisans */}
-                    <div>
-                      <label className="block text-xs font-medium text-gray-800 opacity-80 mb-2">Öğrenim Türü</label>
-                      <div className="flex gap-2">
-                        {['lisans', 'onlisans'].map(level => (
-                          <label key={level} className="flex items-center gap-1 text-sm text-gray-800 opacity-80">
-                            <input type="checkbox" checked={searchFilters.educationLevels.includes(level)} onChange={() => handleMultiSelect('educationLevels', level)} />
-                            {level === 'lisans' ? 'Lisans' : 'Ön Lisans'}
-                          </label>
-                        ))}
-                      </div>
-                    </div>
                   </div>
                 )}
               </div>
@@ -266,10 +288,10 @@ export default function FilterPanel({ isOpen, onClose, onCollapseChange, setSear
                 {expandedSections.diger && (
                   <div className="space-y-3">
                     {renderDropdownFilter('Burs/Ücret', 'scholarshipLevels', [
-                      { label: 'Tam Burslu', value: '100' },
+                      { label: 'Tam Burslu', value: 'full' },
                       { label: '%50 Burslu', value: '50' },
                       { label: '%25 Burslu', value: '25' },
-                      { label: 'Ücretli', value: 'cretli' }
+                      { label: 'Ücretli', value: 'paid' }
                     ], searchFilters.scholarshipLevels, val => handleMultiSelect('scholarshipLevels', val))}
                     {/* Üniversite Türü Çoklu Seçim */}
                     <div>

@@ -487,7 +487,7 @@ export async function GET(request: NextRequest) {
         // Parantez ve eklerden arındırılmış cleanName ile normalizeText karşılaştırması yap
         const cleanName = extractTagsFromDepartmentName(department.name).cleanName
         const normalizedCleanName = normalizeText(cleanName)
-        const match = departmentNames.some(name => normalizedCleanName === normalizeText(name))
+        const match = departmentNames.some(name => normalizeText(name) === normalizedCleanName)
         matches = matches && match
       }
       
