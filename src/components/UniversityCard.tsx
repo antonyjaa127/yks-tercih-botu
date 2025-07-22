@@ -47,17 +47,12 @@ export default function UniversityCard({
     if (isInComparison) {
       removeFromComparison(university.id, department.id)
     } else {
-      const comparisonPayload = {
-        universityName: university.name,
-        departmentName: department.name,
-        logo: university.logo,
-        ...university,
-        ...department,
+      addToComparison({
         universityId: String(university.id),
-        departmentId: String(department.id)
-      };
-      console.log('Karşılaştırmaya eklenen:', comparisonPayload);
-      addToComparison(comparisonPayload)
+        departmentId: String(department.id),
+        university,
+        department
+      })
     }
   }
   // Badge fonksiyonları sadeleştirildi

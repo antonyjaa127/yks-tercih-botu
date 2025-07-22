@@ -196,16 +196,6 @@ export interface SearchFilters {
 export interface ComparisonItem {
   universityId: string
   departmentId: string
-  universityName: string
-  departmentName: string
-  logo?: string
-  scholarshipPercentage?: number
-  yopCode?: string
-  departmentWebsite?: string
-  yksAtlasLink?: string
-  facultyName?: string
-  historicalData?: Department['historicalData']
-  languageOfInstruction?: string
-  city?: string
-  type?: string
+  university: University
+  department: Department
 } 

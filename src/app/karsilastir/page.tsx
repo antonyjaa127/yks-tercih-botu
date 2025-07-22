@@ -18,8 +18,7 @@ interface ComparisonData {
 }
 
 export default function ComparisonPage() {
-  const { comparisonItems, removeFromComparison, clearComparison, universities } = useStore()
-  const [comparisonData, setComparisonData] = useState<ComparisonData[]>([])
+  const { comparisonItems, removeFromComparison, clearComparison } = useStore()
   const [expandedSections, setExpandedSections] = useState({
     basic: true,
     academic: true,
@@ -34,98 +33,8 @@ export default function ComparisonPage() {
     setOpenAccordion((prev) => ({ ...prev, [idx]: !prev[idx] }))
   }
 
-  useEffect(() => {
-    setIsLoading(true);
-    const data: ComparisonData[] = []
-    const fetchMissingDetails = async (item: import('@/types').ComparisonItem) => {
-      try {
-        const response = await fetch(`/api/universities?universityNames=${encodeURIComponent(item.universityName)}&departmentNames=${encodeURIComponent(item.departmentName)}`)
-        const apiData = await response.json()
-        let uni = null;
-        let dep = null;
-        if (apiData.universities && apiData.universities.length > 0) {
-          for (const u of apiData.universities) {
-            if (item.universityId && String(u.id) !== String(item.universityId)) continue;
-            for (const d of (u.departments || [])) {
-              if (
-                (item.departmentId && String(d.id) === String(item.departmentId)) ||
-                (item.yopCode && d.yopCode && String(d.yopCode) === String(item.yopCode))
-              ) {
-                uni = u;
-                dep = d;
-                break;
-              }
-            }
-            if (uni && dep) break;
-          }
-        }
-        if (uni && dep) {
-          data.push({ university: uni, department: dep })
-        } else {
-          // Yine de placeholder ekle
-          data.push({
-            university: {
-              id: String(item.universityId),
-              name: item.universityName,
-              logo: item.logo,
-              city: '',
-              cityId: 0,
-              type: 'state',
-              foundingYear: 0,
-              website: '',
-              description: '',
-              contactInfo: { phone: '', email: '', address: '' },
-              socialMedia: {},
-              facilities: { dormitory: false, sports: false, library: false, labs: false, cafeteria: false },
-              studentCount: 0,
-              academicStaffCount: 0,
-              departments: [],
-              photos: [],
-              videos: []
-            },
-            department: {
-              id: String(item.departmentId),
-              universityId: Number(item.universityId),
-              name: item.departmentName,
-              facultyName: '',
-              scoreType: 'SAY',
-              lastYearScore: 0,
-              lastYearRank: 0,
-              quota: 0,
-              scholarshipPercentage: item.scholarshipPercentage ?? 0,
-              languageOfInstruction: 'turkish',
-              description: '',
-              careerOpportunities: [],
-              internshipOpportunities: [],
-              yopCode: item.yopCode || '',
-              historicalData: item.historicalData || { 2024: {}, 2023: {}, 2022: {} },
-              latestScores: [],
-              academics: [],
-              educationLevel: 'lisans'
-            }
-          })
-        }
-      } catch {
-        // Hata olursa placeholder ekle
-      }
-    }
-    const fetchAll = async () => {
-      for (const item of comparisonItems) {
-        // Önce store'daki universities dizisinden tam eşleşen üniversite ve bölümü bul
-        const university = universities.find(uni => String(uni.id) === String(item.universityId))
-        const foundDepartment = university?.departments.find(dep => String(dep.id) === String(item.departmentId))
-        if (university && foundDepartment) {
-          data.push({ university, department: foundDepartment })
-        } else {
-          await fetchMissingDetails(item)
-        }
-      }
-      setComparisonData(data)
-      setIsLoading(false);
-    }
-    fetchAll()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [comparisonItems])
+  // Artık comparisonData state'i ve useEffect'e gerek yok, comparisonItems doğrudan kullanılacak
+  const comparisonData = comparisonItems.map(item => ({ university: item.university, department: item.department }))
 
   const toggleSection = (section: keyof typeof expandedSections) => {
     setExpandedSections(prev => ({

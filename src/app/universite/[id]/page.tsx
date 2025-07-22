@@ -108,9 +108,8 @@ export default function UniversityDetailPage() {
     const comparisonItem = {
       universityId: university.id,
       departmentId: department.id,
-      universityName: university.name,
-      departmentName: department.name,
-      logo: university.logo
+      university,
+      department
     }
 
     const isInComparison = comparisonItems.some(
