@@ -21,6 +21,7 @@ export default function FilterPanel({ isOpen, onClose, onCollapseChange, setSear
   const [showScoreFilter, setShowScoreFilter] = useState(false)
   const [showRankFilter, setShowRankFilter] = useState(false)
   const [allDepartments, setAllDepartments] = useState<string[]>([])
+  const [allUniversities, setAllUniversities] = useState<string[]>([]);
 
   // Açılır/kapanır filtreler için state
   const [openDropdown, setOpenDropdown] = useState<string | null>(null)
@@ -78,7 +79,26 @@ export default function FilterPanel({ isOpen, onClose, onCollapseChange, setSear
     fetchDepartments()
   }, [])
 
-  const universityNames = Array.from(new Set(universities.flatMap(u => u.name))).sort()
+  // Tüm üniversite isimlerini API'den çek
+  useEffect(() => {
+    const fetchUniversities = async () => {
+      try {
+        const response = await fetch('/api/universities?limit=10000')
+        const data = await response.json()
+        let universities = Array.from(new Set(
+          (data.universities || []).map((u: { name: string }) => u.name)
+        )) as string[];
+        universities = universities.sort((a, b) => a.localeCompare(b, 'tr'));
+        setAllUniversities(universities)
+      } catch (error) {
+        setAllUniversities([])
+      }
+    }
+    fetchUniversities()
+  }, [])
+
+  // const universityNames = Array.from(new Set(universities.flatMap(u => u.name))).sort()
+  const universityNames = allUniversities
   // const departmentNames = Array.from(new Set(universities.flatMap(u => u.departments.map(d => d.name)))).sort()
   const departmentNames = allDepartments
 
@@ -132,28 +152,49 @@ export default function FilterPanel({ isOpen, onClose, onCollapseChange, setSear
   }
 
   // Açılır/kapanır select list fonksiyonu
-  const renderDropdownFilter = (label: string, key: string, options: Array<string | {label: string, value: string}>, selected: string[], onSelect: (val: string) => void) => (
-    <div className="mb-2">
-      <button type="button" className="w-full flex items-center justify-between px-3 py-2 border border-gray-200 rounded-lg bg-white hover:bg-gray-50 transition-colors" onClick={() => setOpenDropdown(openDropdown === key ? null : key)}>
-        <span className="text-xs font-medium text-gray-800 opacity-80">{label}</span>
-        {openDropdown === key ? <ChevronUp className="w-4 h-4 text-gray-400" /> : <ChevronDown className="w-4 h-4 text-gray-400" />}
-      </button>
-      {openDropdown === key && (
-        <div className="mt-2 max-h-40 overflow-y-auto border border-gray-100 rounded-lg bg-white shadow p-2 z-10">
-          {[...new Set(options)].map((opt, idx) => {
-            const value = typeof opt === 'string' ? opt : opt.value;
-            const label = typeof opt === 'string' ? opt : opt.label;
-            return (
-              <label key={value + '-' + idx} className="flex items-center gap-2 text-sm px-2 py-1 cursor-pointer hover:bg-blue-50 rounded">
-                <input type="checkbox" checked={selected.includes(value)} onChange={() => onSelect(value)} />
-                <span className="text-gray-800 opacity-80">{label}</span>
-              </label>
-            );
-          })}
-        </div>
-      )}
-    </div>
-  )
+  const renderDropdownFilter = (label: string, key: string, options: Array<string | {label: string, value: string}>, selected: string[], onSelect: (val: string) => void) => {
+    const [search, setSearch] = useState('');
+    // Sadece bu üç filtrede arama kutusu göster
+    const showSearch = ['cities', 'universityNames', 'departmentNames'].includes(key);
+    // Filtrelenmiş seçenekler
+    const filteredOptions = search
+      ? [...new Set(options)].filter(opt => {
+          const labelText = typeof opt === 'string' ? opt : opt.label;
+          return labelText.toLowerCase().includes(search.toLowerCase());
+        })
+      : [...new Set(options)];
+    return (
+      <div className="mb-2">
+        <button type="button" className="w-full flex items-center justify-between px-3 py-2 border border-gray-200 rounded-lg bg-white hover:bg-gray-50 transition-colors" onClick={() => setOpenDropdown(openDropdown === key ? null : key)}>
+          <span className="text-xs font-medium text-gray-800 opacity-80">{label}</span>
+          {openDropdown === key ? <ChevronUp className="w-4 h-4 text-gray-400" /> : <ChevronDown className="w-4 h-4 text-gray-400" />}
+        </button>
+        {openDropdown === key && (
+          <div className="mt-2 max-h-40 overflow-y-auto border border-gray-100 rounded-lg bg-white shadow p-2 z-10">
+            {showSearch && (
+              <input
+                type="text"
+                value={search}
+                onChange={e => setSearch(e.target.value)}
+                placeholder="Ara..."
+                className="w-full mb-2 px-2 py-1 border border-gray-200 rounded text-sm"
+              />
+            )}
+            {filteredOptions.map((opt, idx) => {
+              const value = typeof opt === 'string' ? opt : opt.value;
+              const label = typeof opt === 'string' ? opt : opt.label;
+              return (
+                <label key={value + '-' + idx} className="flex items-center gap-2 text-sm px-2 py-1 cursor-pointer hover:bg-blue-50 rounded">
+                  <input type="checkbox" checked={selected.includes(value)} onChange={() => onSelect(value)} />
+                  <span className="text-gray-800 opacity-80">{label}</span>
+                </label>
+              );
+            })}
+          </div>
+        )}
+      </div>
+    );
+  }
 
   return (
     <div className={`fixed inset-y-0 left-0 z-40 bg-white shadow-xl transform transition-all duration-300 ease-in-out lg:relative lg:inset-auto lg:transform-none lg:shadow-none lg:border-r lg:border-b lg:border-gray-200 ${isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'} ${isCollapsed ? 'w-80 lg:w-12' : 'w-80 lg:w-80'}`}>

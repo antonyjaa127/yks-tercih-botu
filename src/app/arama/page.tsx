@@ -149,9 +149,9 @@ function SearchPageContent() {
 
       let result
       let searchQuery = filters.query
-      if (filters.departmentNames && filters.departmentNames.length > 0) {
-        searchQuery = filters.departmentNames[0]
-      }
+      // if (filters.departmentNames && filters.departmentNames.length > 0) {
+      //   searchQuery = filters.departmentNames[0]
+      // }
       if (hasAnyFilter) {
         // Filtreli arama
         result = await searchUniversities(

@@ -26,6 +26,7 @@ export default function ComparisonPage() {
     facilities: true,
     contact: false
   })
+  const [isLoading, setIsLoading] = useState(false);
 
   // Accordion state for each university column
   const [openAccordion, setOpenAccordion] = useState<{ [key: number]: boolean }>({})
@@ -34,84 +35,97 @@ export default function ComparisonPage() {
   }
 
   useEffect(() => {
+    setIsLoading(true);
     const data: ComparisonData[] = []
-    comparisonItems.forEach(item => {
-      // id ve name ile tam eşleşme yap
-      const university = universities.find(uni => String(uni.id) === String(item.universityId))
-      const foundDepartment = university?.departments.find(dep => String(dep.id) === String(item.departmentId) && dep.name === item.departmentName)
-      let department;
-      if (university && foundDepartment) {
-        // Sadece istenen alanlar için önce item'dan, yoksa foundDepartment/university'den al
-        const ci = item as import('@/types').ComparisonItem;
-        const isValidLanguage = (lang: string): lang is 'turkish' | 'english' | 'hybrid' => {
-          return ['turkish', 'english', 'hybrid'].includes(lang)
-        }
-        
-        department = {
-          ...foundDepartment,
-          facultyName: ci.facultyName || foundDepartment.facultyName,
-          historicalData: ci.historicalData || foundDepartment.historicalData,
-          languageOfInstruction: (ci.languageOfInstruction && isValidLanguage(ci.languageOfInstruction)) 
-            ? ci.languageOfInstruction 
-            : foundDepartment.languageOfInstruction,
-        }
-        const isValidType = (type: string): type is 'state' | 'foundation' | 'trnc' => {
-          return ['state', 'foundation', 'trnc'].includes(type)
-        }
-        
-        const mergedUniversity = {
-          ...university,
-          city: ci.city || university.city,
-          type: (ci.type && isValidType(ci.type)) ? ci.type : university.type
-        }
-        data.push({ university: mergedUniversity, department })
-      } else {
-        // Eksik veriyle placeholder oluştur, comparisonItems'tan detayları ekle
-        data.push({
-          university: {
-            id: String(item.universityId),
-            name: item.universityName,
-            logo: item.logo,
-            city: '',
-            cityId: 0,
-            type: 'state',
-            foundingYear: 0,
-            website: '',
-            description: '',
-            contactInfo: { phone: '', email: '', address: '' },
-            socialMedia: {},
-            facilities: { dormitory: false, sports: false, library: false, labs: false, cafeteria: false },
-            studentCount: 0,
-            academicStaffCount: 0,
-            departments: [],
-            photos: [],
-            videos: []
-          },
-          department: {
-            id: String(item.departmentId),
-            universityId: Number(item.universityId),
-            name: item.departmentName,
-            facultyName: '',
-            scoreType: 'SAY',
-            lastYearScore: 0,
-            lastYearRank: 0,
-            quota: 0,
-            scholarshipPercentage: item.scholarshipPercentage ?? 0,
-            languageOfInstruction: 'turkish',
-            description: '',
-            careerOpportunities: [],
-            internshipOpportunities: [],
-            historicalData: { 2024: {}, 2023: {}, 2022: {} },
-            yopCode: item.yopCode ?? '',
-            educationLevel: 'lisans',
-            departmentWebsite: item.departmentWebsite ?? '',
-            yksAtlasLink: item.yksAtlasLink ?? ''
+    const fetchMissingDetails = async (item: import('@/types').ComparisonItem) => {
+      try {
+        const response = await fetch(`/api/universities?universityNames=${encodeURIComponent(item.universityName)}&departmentNames=${encodeURIComponent(item.departmentName)}`)
+        const apiData = await response.json()
+        let uni = null;
+        let dep = null;
+        if (apiData.universities && apiData.universities.length > 0) {
+          for (const u of apiData.universities) {
+            if (item.universityId && String(u.id) !== String(item.universityId)) continue;
+            for (const d of (u.departments || [])) {
+              if (
+                (item.departmentId && String(d.id) === String(item.departmentId)) ||
+                (item.yopCode && d.yopCode && String(d.yopCode) === String(item.yopCode))
+              ) {
+                uni = u;
+                dep = d;
+                break;
+              }
+            }
+            if (uni && dep) break;
           }
-        })
+        }
+        if (uni && dep) {
+          data.push({ university: uni, department: dep })
+        } else {
+          // Yine de placeholder ekle
+          data.push({
+            university: {
+              id: String(item.universityId),
+              name: item.universityName,
+              logo: item.logo,
+              city: '',
+              cityId: 0,
+              type: 'state',
+              foundingYear: 0,
+              website: '',
+              description: '',
+              contactInfo: { phone: '', email: '', address: '' },
+              socialMedia: {},
+              facilities: { dormitory: false, sports: false, library: false, labs: false, cafeteria: false },
+              studentCount: 0,
+              academicStaffCount: 0,
+              departments: [],
+              photos: [],
+              videos: []
+            },
+            department: {
+              id: String(item.departmentId),
+              universityId: Number(item.universityId),
+              name: item.departmentName,
+              facultyName: '',
+              scoreType: 'SAY',
+              lastYearScore: 0,
+              lastYearRank: 0,
+              quota: 0,
+              scholarshipPercentage: item.scholarshipPercentage ?? 0,
+              languageOfInstruction: 'turkish',
+              description: '',
+              careerOpportunities: [],
+              internshipOpportunities: [],
+              yopCode: item.yopCode || '',
+              historicalData: item.historicalData || { 2024: {}, 2023: {}, 2022: {} },
+              latestScores: [],
+              academics: [],
+              educationLevel: 'lisans'
+            }
+          })
+        }
+      } catch {
+        // Hata olursa placeholder ekle
       }
-    })
-    setComparisonData(data)
-  }, [comparisonItems, universities])
+    }
+    const fetchAll = async () => {
+      for (const item of comparisonItems) {
+        // Önce store'daki universities dizisinden tam eşleşen üniversite ve bölümü bul
+        const university = universities.find(uni => String(uni.id) === String(item.universityId))
+        const foundDepartment = university?.departments.find(dep => String(dep.id) === String(item.departmentId))
+        if (university && foundDepartment) {
+          data.push({ university, department: foundDepartment })
+        } else {
+          await fetchMissingDetails(item)
+        }
+      }
+      setComparisonData(data)
+      setIsLoading(false);
+    }
+    fetchAll()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [comparisonItems])
 
   const toggleSection = (section: keyof typeof expandedSections) => {
     setExpandedSections(prev => ({
@@ -210,196 +224,203 @@ export default function ComparisonPage() {
 
   return (
     <div className="min-h-screen bg-gray-50 pb-24">
-      {/* Header */}
-      <div className="bg-white shadow-sm border-b">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 lg:py-6">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-            <div>
-              <h1 className="text-xl lg:text-3xl font-bold text-gray-900">
-                Üniversite Karşılaştırması
-              </h1>
-              <p className="text-sm lg:text-base text-gray-600 mt-1">
-                {comparisonData.length} üniversite karşılaştırılıyor
-              </p>
-            </div>
-            <div className="flex items-center space-x-2 lg:space-x-4">
-              <Link
-                href="/arama"
-                className="inline-flex items-center px-3 lg:px-4 py-1.5 lg:py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-blue-50 transition-colors text-sm lg:text-base"
-              >
-                <ArrowLeft className="w-3 h-3 lg:w-4 lg:h-4 mr-1 lg:mr-2" />
-                Geri Dön
-              </Link>
-              <button
-                onClick={clearComparison}
-                className="inline-flex items-center px-3 lg:px-4 py-1.5 lg:py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors text-sm lg:text-base"
-              >
-                <X className="w-3 h-3 lg:w-4 lg:h-4 mr-1 lg:mr-2" />
-                Tümünü Temizle
-              </button>
+      {isLoading ? (
+        <div className="flex justify-center items-center min-h-[300px]">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+        </div>
+      ) : (
+        <>
+          {/* Header */}
+          <div className="bg-white shadow-sm border-b">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 lg:py-6">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                <div>
+                  <h1 className="text-xl lg:text-3xl font-bold text-gray-900">
+                    Üniversite Karşılaştırması
+                  </h1>
+                  <p className="text-sm lg:text-base text-gray-600 mt-1">
+                    {comparisonData.length} üniversite karşılaştırılıyor
+                  </p>
+                </div>
+                <div className="flex items-center space-x-2 lg:space-x-4">
+                  <Link
+                    href="/arama"
+                    className="inline-flex items-center px-3 lg:px-4 py-1.5 lg:py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-blue-50 transition-colors text-sm lg:text-base"
+                  >
+                    <ArrowLeft className="w-3 h-3 lg:w-4 lg:h-4 mr-1 lg:mr-2" />
+                    Geri Dön
+                  </Link>
+                  <button
+                    onClick={clearComparison}
+                    className="inline-flex items-center px-3 lg:px-4 py-1.5 lg:py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors text-sm lg:text-base"
+                  >
+                    <X className="w-3 h-3 lg:w-4 lg:h-4 mr-1 lg:mr-2" />
+                    Tümünü Temizle
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
-        </div>
-      </div>
-
-      {/* Modern Comparison Table */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="bg-white rounded-2xl shadow-sm overflow-x-auto">
-          <table className="w-full text-sm lg:text-base">
-            <thead>
-              <tr className="border-b border-gray-200">
-                <th className="text-left py-3 px-4 font-semibold text-gray-900 bg-gray-50 sticky left-0 z-10">Özellik</th>
-                {comparisonData.map((data, index) => (
-                  <th key={index} className="text-center py-3 px-4 min-w-[260px] bg-gray-50 align-top">
-                    <div className="flex flex-col items-center gap-1">
-                      <h3 className="font-semibold text-gray-900 text-base text-center">
-                        {data.university.name}
-                      </h3>
-                      <p className="text-blue-600 text-xs mt-1 truncate w-full">
-                        {data.department.name}
-                      </p>
-                      <button
-                        onClick={() => removeFromComparison(data.university.id, data.department.id)}
-                        className="mt-1 p-1 hover:bg-gray-100 rounded-full transition-colors"
-                        title="Karşılaştırmadan çıkar"
-                      >
-                        <X className="w-4 h-4 text-gray-400" />
-                      </button>
-                    </div>
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {/* Temel Bilgiler */}
-              {[
-                { label: 'Fakülte', value: (d: ComparisonData) => d.department.facultyName },
-                { label: 'Şehir', value: (d: ComparisonData) => d.university.city },
-                { label: 'Üniversite Türü', value: (d: ComparisonData) => d.university.type === 'state' ? 'Devlet' : d.university.type === 'foundation' ? 'Vakıf' : 'KKTC' },
-                { label: 'Puan Türü', value: (d: ComparisonData) => d.department.scoreType },
-                { label: 'Dil', value: (d: ComparisonData) => {
-                  if (d.department.languageOfInstruction === 'english') return 'İngilizce';
-                  if (d.department.languageOfInstruction === 'turkish') return 'Türkçe';
-                  if (d.department.languageOfInstruction === 'hybrid') return 'Karma';
-                  return d.department.languageOfInstruction || '-';
-                } },
-                { label: 'Öğrenim Süresi', value: (d: ComparisonData) => d.department.educationLevel === 'onlisans' ? '2 Yıl' : '4 Yıl' },
-                { label: 'Ücret/Burs', value: (d: ComparisonData) => getScholarshipBadgeFromName(d.department) || <span className="text-gray-500">Ücretli</span> },
-              ].map((row, i) => (
-                <tr key={row.label} className="border-b border-gray-100">
-                  <td className="py-3 px-4 font-bold text-gray-700 bg-gray-50 sticky left-0 z-10">{row.label}</td>
-                  {comparisonData.map((data, idx) => (
-                    <td key={idx} className="py-3 px-4 text-center text-gray-900 font-normal">{row.value(data) || '-'}</td>
+          {/* Modern Comparison Table */}
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <div className="bg-white rounded-2xl shadow-sm overflow-x-auto">
+              <table className="w-full text-sm lg:text-base">
+                <thead>
+                  <tr className="border-b border-gray-200">
+                    <th className="text-left py-3 px-4 font-semibold text-gray-900 bg-gray-50 sticky left-0 z-10">Özellik</th>
+                    {comparisonData.map((data, index) => (
+                      <th key={index} className="text-center py-3 px-4 min-w-[260px] bg-gray-50 align-top">
+                        <div className="flex flex-col items-center gap-1">
+                          <h3 className="font-semibold text-gray-900 text-base text-center">
+                            {data.university.name}
+                          </h3>
+                          <p className="text-blue-600 text-xs mt-1 truncate w-full">
+                            {data.department.name}
+                          </p>
+                          <button
+                            onClick={() => removeFromComparison(data.university.id, data.department.id)}
+                            className="mt-1 p-1 hover:bg-gray-100 rounded-full transition-colors"
+                            title="Karşılaştırmadan çıkar"
+                          >
+                            <X className="w-4 h-4 text-gray-400" />
+                          </button>
+                        </div>
+                      </th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {/* Temel Bilgiler */}
+                  {[
+                    { label: 'Fakülte', value: (d: ComparisonData) => d.department.facultyName },
+                    { label: 'Şehir', value: (d: ComparisonData) => d.university.city },
+                    { label: 'Üniversite Türü', value: (d: ComparisonData) => d.university.type === 'state' ? 'Devlet' : d.university.type === 'foundation' ? 'Vakıf' : 'KKTC' },
+                    { label: 'Puan Türü', value: (d: ComparisonData) => d.department.scoreType },
+                    { label: 'Dil', value: (d: ComparisonData) => {
+                      if (d.department.languageOfInstruction === 'english') return 'İngilizce';
+                      if (d.department.languageOfInstruction === 'turkish') return 'Türkçe';
+                      if (d.department.languageOfInstruction === 'hybrid') return 'Karma';
+                      return d.department.languageOfInstruction || '-';
+                    } },
+                    { label: 'Öğrenim Süresi', value: (d: ComparisonData) => d.department.educationLevel === 'onlisans' ? '2 Yıl' : '4 Yıl' },
+                    { label: 'Ücret/Burs', value: (d: ComparisonData) => d.university.type === 'state' ? <span className="text-green-700 font-semibold">Ücretsiz</span> : (getScholarshipBadgeFromName(d.department) || <span className="text-gray-500">Ücretli</span>) },
+                  ].map((row, i) => (
+                    <tr key={row.label} className="border-b border-gray-100">
+                      <td className="py-3 px-4 font-bold text-gray-700 bg-gray-50 sticky left-0 z-10">{row.label}</td>
+                      {comparisonData.map((data, idx) => (
+                        <td key={idx} className="py-3 px-4 text-center text-gray-900 font-normal">{row.value(data) || '-'}</td>
+                      ))}
+                    </tr>
                   ))}
-                </tr>
-              ))}
 
-              {/* Accordion: Yıllara Göre Bilgiler */}
-              <tr className="border-b border-gray-100">
-                <td className="py-3 px-4 font-medium text-gray-700 bg-gray-50 sticky left-0 z-10">Yıllara Göre Bilgiler</td>
-                {comparisonData.map((data, idx) => (
-                  <td key={idx} className="py-3 px-4 text-center">
-                    <div className="flex flex-col items-center gap-2">
-                      {/* 2024 */}
-                      <div className="mb-1">
-                        <span className="font-bold text-blue-700">2024</span>
-                        <div className="flex flex-col gap-1 mt-1">
-                          <span className="inline-block text-xs bg-blue-100 text-blue-800 rounded px-2 py-0.5">Kontenjan: {data.department.historicalData[2024]?.quota ?? '-'}</span>
-                          <span className="inline-block text-xs bg-blue-100 text-blue-800 rounded px-2 py-0.5">Sıralama: {data.department.historicalData[2024]?.rank ?? '-'}</span>
-                          <span className="inline-block text-xs bg-blue-100 text-blue-800 rounded px-2 py-0.5">Taban Puan: {data.department.historicalData[2024]?.score ?? '-'}</span>
-                        </div>
-                      </div>
-                      {/* Accordion for 2023/2022 */}
-                      <button
-                        className="text-xs text-gray-500 underline hover:text-blue-600 mb-1"
-                        onClick={() => toggleAccordion(idx)}
-                        type="button"
-                      >
-                        {openAccordion[idx] ? 'Geçmiş Yılları Gizle' : 'Geçmiş Yılları Göster'}
-                      </button>
-                      {openAccordion[idx] && (
-                        <div className="flex flex-col gap-1 w-full">
+                  {/* Accordion: Yıllara Göre Bilgiler */}
+                  <tr className="border-b border-gray-100">
+                    <td className="py-3 px-4 font-medium text-gray-700 bg-gray-50 sticky left-0 z-10">Yıllara Göre Bilgiler</td>
+                    {comparisonData.map((data, idx) => (
+                      <td key={idx} className="py-3 px-4 text-center">
+                        <div className="flex flex-col items-center gap-2">
+                          {/* 2024 */}
                           <div className="mb-1">
-                            <span className="font-bold text-gray-700">2023</span>
+                            <span className="font-bold text-blue-700">2024</span>
                             <div className="flex flex-col gap-1 mt-1">
-                              <span className="inline-block text-xs bg-gray-100 text-gray-800 rounded px-2 py-0.5">Kontenjan: {data.department.historicalData[2023]?.quota ?? '-'}</span>
-                              <span className="inline-block text-xs bg-gray-100 text-gray-800 rounded px-2 py-0.5">Sıralama: {data.department.historicalData[2023]?.rank ?? '-'}</span>
-                              <span className="inline-block text-xs bg-gray-100 text-gray-800 rounded px-2 py-0.5">Taban Puan: {data.department.historicalData[2023]?.score ?? '-'}</span>
+                              <span className="inline-block text-xs bg-blue-100 text-blue-800 rounded px-2 py-0.5">Kontenjan: {data.department.historicalData[2024]?.quota ?? '-'}</span>
+                              <span className="inline-block text-xs bg-blue-100 text-blue-800 rounded px-2 py-0.5">Sıralama: {data.department.historicalData[2024]?.rank ?? '-'}</span>
+                              <span className="inline-block text-xs bg-blue-100 text-blue-800 rounded px-2 py-0.5">Taban Puan: {data.department.historicalData[2024]?.score ?? '-'}</span>
                             </div>
                           </div>
-                          <div>
-                            <span className="font-bold text-gray-500">2022</span>
-                            <div className="flex flex-col gap-1 mt-1">
-                              <span className="inline-block text-xs bg-gray-50 text-gray-600 rounded px-2 py-0.5">Kontenjan: {data.department.historicalData[2022]?.quota ?? '-'}</span>
-                              <span className="inline-block text-xs bg-gray-50 text-gray-600 rounded px-2 py-0.5">Sıralama: {data.department.historicalData[2022]?.rank ?? '-'}</span>
-                              <span className="inline-block text-xs bg-gray-50 text-gray-600 rounded px-2 py-0.5">Taban Puan: {data.department.historicalData[2022]?.score ?? '-'}</span>
+                          {/* Accordion for 2023/2022 */}
+                          <button
+                            className="text-xs text-gray-500 underline hover:text-blue-600 mb-1"
+                            onClick={() => toggleAccordion(idx)}
+                            type="button"
+                          >
+                            {openAccordion[idx] ? 'Geçmiş Yılları Gizle' : 'Geçmiş Yılları Göster'}
+                          </button>
+                          {openAccordion[idx] && (
+                            <div className="flex flex-col gap-1 w-full">
+                              <div className="mb-1">
+                                <span className="font-bold text-gray-700">2023</span>
+                                <div className="flex flex-col gap-1 mt-1">
+                                  <span className="inline-block text-xs bg-gray-100 text-gray-800 rounded px-2 py-0.5">Kontenjan: {data.department.historicalData[2023]?.quota ?? '-'}</span>
+                                  <span className="inline-block text-xs bg-gray-100 text-gray-800 rounded px-2 py-0.5">Sıralama: {data.department.historicalData[2023]?.rank ?? '-'}</span>
+                                  <span className="inline-block text-xs bg-gray-100 text-gray-800 rounded px-2 py-0.5">Taban Puan: {data.department.historicalData[2023]?.score ?? '-'}</span>
+                                </div>
+                              </div>
+                              <div>
+                                <span className="font-bold text-gray-500">2022</span>
+                                <div className="flex flex-col gap-1 mt-1">
+                                  <span className="inline-block text-xs bg-gray-50 text-gray-600 rounded px-2 py-0.5">Kontenjan: {data.department.historicalData[2022]?.quota ?? '-'}</span>
+                                  <span className="inline-block text-xs bg-gray-50 text-gray-600 rounded px-2 py-0.5">Sıralama: {data.department.historicalData[2022]?.rank ?? '-'}</span>
+                                  <span className="inline-block text-xs bg-gray-50 text-gray-600 rounded px-2 py-0.5">Taban Puan: {data.department.historicalData[2022]?.score ?? '-'}</span>
+                                </div>
+                              </div>
                             </div>
-                          </div>
+                          )}
                         </div>
-                      )}
-                    </div>
-                  </td>
-                ))}
-              </tr>
+                      </td>
+                    ))}
+                  </tr>
 
-              {/* Ek Bilgiler ve Butonlar */}
-              <tr>
-                <td className="py-6 px-4 font-medium text-gray-700 bg-gray-50 sticky left-0 z-10 align-top">Ek Bilgiler</td>
-                {comparisonData.map((data, idx) => (
-                  <td key={idx} className="py-6 px-4 text-center align-top">
-                    <div className="flex flex-col items-center gap-2">
-                      {/* Akademik Kadro */}
-                      {data.department.yopCode && (
-                        <a
-                          href={`https://yokatlas.yok.gov.tr/externalAppParameter.php?y=${data.department.yopCode}`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="inline-flex items-center px-3 py-2 text-xs font-semibold bg-red-50 text-red-800 rounded-lg hover:bg-red-100 transition-colors shadow-sm border border-red-200"
-                        >
-                          Akademik Kadro
-                        </a>
-                      )}
-                      {/* Genel Bilgiler */}
-                      {data.department.yopCode && (
-                        <a
-                          href={`https://yokatlas.yok.gov.tr/lisans.php?y=${data.department.yopCode}`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="inline-flex items-center px-3 py-2 text-xs font-semibold bg-blue-50 text-blue-800 rounded-lg hover:bg-blue-100 transition-colors shadow-sm border border-blue-200"
-                        >
-                          Genel Bilgiler
-                        </a>
-                      )}
-                      {/* Bölüm Linki */}
-                      {data.department.departmentWebsite && (
-                        <a
-                          href={data.department.departmentWebsite}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="inline-flex items-center px-3 py-2 text-xs font-semibold bg-blue-50 text-blue-800 rounded-lg hover:bg-blue-100 transition-colors shadow-sm border border-blue-200"
-                        >
-                          Bölüm Linki
-                        </a>
-                      )}
-                      {/* Yerleşenlerin YKS Netleri */}
-                      {data.department.yksAtlasLink && (
-                        <a
-                          href={data.department.yksAtlasLink}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="inline-flex items-center px-3 py-2 text-xs font-semibold bg-green-50 text-green-800 rounded-lg hover:bg-green-100 transition-colors shadow-sm border border-green-200"
-                        >
-                          Yerleşenlerin YKS Netleri
-                        </a>
-                      )}
-                    </div>
-                  </td>
-                ))}
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
+                  {/* Ek Bilgiler ve Butonlar */}
+                  <tr>
+                    <td className="py-6 px-4 font-medium text-gray-700 bg-gray-50 sticky left-0 z-10 align-top">Ek Bilgiler</td>
+                    {comparisonData.map((data, idx) => (
+                      <td key={idx} className="py-6 px-4 text-center align-top">
+                        <div className="flex flex-col items-center gap-2">
+                          {/* Akademik Kadro */}
+                          {data.department.yopCode && (
+                            <a
+                              href={`https://yokatlas.yok.gov.tr/externalAppParameter.php?y=${data.department.yopCode}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="inline-flex items-center px-3 py-2 text-xs font-semibold bg-red-50 text-red-800 rounded-lg hover:bg-red-100 transition-colors shadow-sm border border-red-200"
+                            >
+                              Akademik Kadro
+                            </a>
+                          )}
+                          {/* Genel Bilgiler */}
+                          {data.department.yopCode && (
+                            <a
+                              href={`https://yokatlas.yok.gov.tr/lisans.php?y=${data.department.yopCode}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="inline-flex items-center px-3 py-2 text-xs font-semibold bg-blue-50 text-blue-800 rounded-lg hover:bg-blue-100 transition-colors shadow-sm border border-blue-200"
+                            >
+                              Genel Bilgiler
+                            </a>
+                          )}
+                          {/* Bölüm Linki */}
+                          {data.department.departmentWebsite && (
+                            <a
+                              href={data.department.departmentWebsite}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="inline-flex items-center px-3 py-2 text-xs font-semibold bg-blue-50 text-blue-800 rounded-lg hover:bg-blue-100 transition-colors shadow-sm border border-blue-200"
+                            >
+                              Bölüm Linki
+                            </a>
+                          )}
+                          {/* Yerleşenlerin YKS Netleri */}
+                          {data.department.yksAtlasLink && (
+                            <a
+                              href={data.department.yksAtlasLink}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="inline-flex items-center px-3 py-2 text-xs font-semibold bg-green-50 text-green-800 rounded-lg hover:bg-green-100 transition-colors shadow-sm border border-green-200"
+                            >
+                              Yerleşenlerin YKS Netleri
+                            </a>
+                          )}
+                        </div>
+                      </td>
+                    ))}
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </>
+      )}
     </div>
   )
 } 
