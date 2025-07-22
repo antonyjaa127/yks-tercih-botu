@@ -1,13 +1,6 @@
 import { create } from 'zustand'
 import { SearchFilters, ComparisonItem, University, Department } from '@/types'
 
-export interface ComparisonItem {
-  universityId: string
-  departmentId: string
-  university: University
-  department: Department
-}
-
 interface Store {
   // Search and filters
   searchFilters: SearchFilters
