@@ -1,8 +1,6 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import SearchBar from '@/components/SearchBar'
-import UniversityCard from '@/components/UniversityCard'
 import MinimalUniversityCard from '@/components/MinimalUniversityCard'
 import { useStore } from '@/store/useStore'
 import { fetchUniversities } from '@/lib/api'

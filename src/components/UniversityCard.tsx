@@ -1,8 +1,6 @@
 'use client'
 
-import { useState } from 'react'
-import Link from 'next/link'
-import { MapPin, Award, Users, Building, Globe, BookOpen, Heart, Plus, Check, ExternalLink, GraduationCap, Star } from 'lucide-react'
+import { MapPin, Award, Users, Globe, BookOpen, Plus, Check, ExternalLink, GraduationCap, Star } from 'lucide-react'
 import { University, Department } from '@/types'
 import { useStore } from '@/store/useStore'
 import { cn } from '@/lib/utils'

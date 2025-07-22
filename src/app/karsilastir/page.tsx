@@ -6,19 +6,11 @@ import { useStore } from '@/store/useStore'
 // import { mockUniversities } from '@/data/mockData'
 import { University, Department } from '@/types'
 import { 
-  MapPin, 
-  Award, 
-  Users, 
-  Building, 
-  Globe, 
-  Star,
   X,
   ArrowLeft,
-  ChevronDown,
-  ChevronUp
+  Building
 } from 'lucide-react'
 import Link from 'next/link'
-import { cn } from '@/lib/utils'
 
 interface ComparisonData {
   university: University
@@ -51,16 +43,26 @@ export default function ComparisonPage() {
       if (university && foundDepartment) {
         // Sadece istenen alanlar için önce item'dan, yoksa foundDepartment/university'den al
         const ci = item as import('@/types').ComparisonItem;
+        const isValidLanguage = (lang: string): lang is 'turkish' | 'english' | 'hybrid' => {
+          return ['turkish', 'english', 'hybrid'].includes(lang)
+        }
+        
         department = {
           ...foundDepartment,
           facultyName: ci.facultyName || foundDepartment.facultyName,
           historicalData: ci.historicalData || foundDepartment.historicalData,
-          languageOfInstruction: ci.languageOfInstruction || foundDepartment.languageOfInstruction,
+          languageOfInstruction: (ci.languageOfInstruction && isValidLanguage(ci.languageOfInstruction)) 
+            ? ci.languageOfInstruction 
+            : foundDepartment.languageOfInstruction,
         }
+        const isValidType = (type: string): type is 'state' | 'foundation' | 'trnc' => {
+          return ['state', 'foundation', 'trnc'].includes(type)
+        }
+        
         const mergedUniversity = {
           ...university,
           city: ci.city || university.city,
-          type: ci.type || university.type
+          type: (ci.type && isValidType(ci.type)) ? ci.type : university.type
         }
         data.push({ university: mergedUniversity, department })
       } else {

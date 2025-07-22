@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState, useMemo, useCallback, useRef } from 'react'
+import { useEffect, useState, useMemo, useCallback, Suspense } from 'react'
 import { useStore } from '@/store/useStore'
 import { fetchUniversities, searchUniversities } from '@/lib/api'
 import { Search, SlidersHorizontal } from 'lucide-react'
@@ -93,7 +93,7 @@ function formatInline(text: string) {
     .replace(/\*(.+?)\*/g, '<i>$1</i>');
 }
 
-export default function SearchPage() {
+function SearchPageContent() {
   const { 
     universities, 
     setUniversities, 
@@ -115,7 +115,6 @@ export default function SearchPage() {
   const searchParams = useSearchParams();
   const [searchQuery, setSearchQuery] = useState(searchFilters.query || '')
   const [setIsFilterCollapsed] = useState<React.Dispatch<React.SetStateAction<boolean>>>(() => () => {})
-  const [aiBaseFilters, setAiBaseFilters] = useState<SearchFilters | null>(null);
   const [aiMetaText, setAiMetaText] = useState<{ aciklama?: string; neden_boyle?: string; oneriler?: string[]; filtre_ozet?: unknown } | null>(null);
 
   // Debounced search filters - 800ms delay
@@ -484,4 +483,14 @@ export default function SearchPage() {
       </div>
     </div>
   )
-} 
+}
+
+export default function SearchPage() {
+  return (
+    <Suspense fallback={<div className="flex justify-center items-center min-h-screen">
+      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+    </div>}>
+      <SearchPageContent />
+    </Suspense>
+  )
+}

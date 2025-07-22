@@ -23,7 +23,6 @@ import {
   Twitter,
   Instagram,
   Youtube,
-  ChevronRight,
   Heart,
   Plus,
   Check

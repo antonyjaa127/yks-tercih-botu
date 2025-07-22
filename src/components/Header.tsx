@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { useStore } from '@/store/useStore'
-import { GraduationCap, User, Search, Menu, X } from 'lucide-react'
+import { GraduationCap, User, Menu, X } from 'lucide-react'
 import { useState } from 'react'
 
 export default function Header() {

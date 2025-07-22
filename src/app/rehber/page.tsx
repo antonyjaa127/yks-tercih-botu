@@ -47,17 +47,17 @@ const rehberData = [
       {
         subtitle: "Tercih Puanınız Nasıl Hesaplanır?",
         content:
-          'Tercih yaparken kullanacağınız "Yerleştirme Puanı", sınavdan aldığınız puana lise diploma notunuzun (Ortaöğretim Başarı Puanı - OBP) eklenmesiyle oluşur. Liseden aldığınız 100\'lük diploma notunuz 5 ile çarpılarak OBP\'niz oluşturulur (En düşük 250, en yüksek 500 puan). Bu OBP, 0,12 katsayısıyla çarpılarak ham sınav puanınıza eklenir ve Yerleştirme Puanınız ortaya çıkar.',
+          'Tercih yaparken kullanacağınız "Yerleştirme Puanı", sınavdan aldığınız puana lise diploma notunuzun (Ortaöğretim Başarı Puanı - OBP) eklenmesiyle oluşur. Liseden aldığınız 100&apos;lük diploma notunuz 5 ile çarpılarak OBP&apos;niz oluşturulur (En düşük 250, en yüksek 500 puan). Bu OBP, 0,12 katsayısıyla çarpılarak ham sınav puanınıza eklenir ve Yerleştirme Puanınız ortaya çıkar.',
       },
       {
         subtitle: "OBP Kırılması Nedir?",
         content:
-          "Eğer 2023-YKS puanıyla bir programa yerleştirildiyseniz (kayıt yaptırmamış olsanız bile), bu yıl OBP'nizin çarpılacağı katsayılar yarıya düşürülür. Bu durum, yerleştirme puanınızı ve sıralamanızı önemli ölçüde etkileyebilir.",
+          "Eğer 2023-YKS puanıyla bir programa yerleştirildiyseniz (kayıt yaptırmamış olsanız bile), bu yıl OBP&apos;nizin çarpılacağı katsayılar yarıya düşürülür. Bu durum, yerleştirme puanınızı ve sıralamanızı önemli ölçüde etkileyebilir.",
       },
       {
         subtitle: "Ek Puan Avantajı Kimler İçin Geçerli?",
         content:
-          "Mesleki ve teknik lise mezunuysanız, kendi alanınızın devamı niteliğindeki lisans (Tablo-3A, Tablo-3B.1) ve ön lisans (Tablo-3C) programlarını tercih ettiğinizde ek puan alırsınız. Bu durumda OBP'niz ayrıca 0,06 katsayısıyla çarpılarak yerleştirme puanınıza eklenir. Not: Lisans programları için ek puan uygulaması, ilgili ortaöğretim kurumuna 30 Mart 2012 tarihinden önce kayıt yaptıran adaylar için geçerlidir.",
+          "Mesleki ve teknik lise mezunuysanız, kendi alanınızın devamı niteliğindeki lisans (Tablo-3A, Tablo-3B.1) ve ön lisans (Tablo-3C) programlarını tercih ettiğinizde ek puan alırsınız. Bu durumda OBP&apos;niz ayrıca 0,06 katsayısıyla çarpılarak yerleştirme puanınıza eklenir. Not: Lisans programları için ek puan uygulaması, ilgili ortaöğretim kurumuna 30 Mart 2012 tarihinden önce kayıt yaptıran adaylar için geçerlidir.",
       },
       {
         subtitle: "Tercih Listesi Nasıl Oluşturulur?",
@@ -80,7 +80,7 @@ const rehberData = [
       },
       {
         subtitle: "Okul Birinciliği Kontenjanı",
-        content: `Lisenizi birincilikle bitirdiyseniz, size özel ayrılan Okul Birincisi Kontenjanı&#39;nı kullanabilirsiniz. Sistem sizi, genel kontenjan ve okul birincisi kontenjanından hangisi daha avantajlıysa ona göre yerleştirmeye çalışır.`,
+        content: `Lisenizi birincilikle bitirdiyseniz, size özel ayrılan Okul Birincisi Kontenjanı&apos;nı kullanabilirsiniz. Sistem sizi, genel kontenjan ve okul birincisi kontenjanından hangisi daha avantajlıysa ona göre yerleştirmeye çalışır.`,
       },
       {
         subtitle: "34 Yaş Üstü Kadınlar Kontenjanı",
@@ -88,7 +88,7 @@ const rehberData = [
       },
       {
         subtitle: "Depremzede Aday Kontenjanı",
-        content: `6 Şubat 2023 tarihi itibarıyla Adana, Adıyaman, Diyarbakır, Elazığ, Gaziantep, Hatay, Kahramanmaraş, Kilis, Malatya, Osmaniye ve Şanlıurfa illerinde ikamet ediyorsanız veya bu illerdeki bir liseden mezunsanız, sizin için ayrılan Depremzede Aday Kontenjanı&#39;ndan faydalanabilirsiniz. Ancak, hâlihazırda herhangi bir yükseköğretim programına kayıtlıysanız, mezunsanız veya kaydınız silinmişse bu kontenjanı kullanamazsınız.`,
+        content: `6 Şubat 2023 tarihi itibarıyla Adana, Adıyaman, Diyarbakır, Elazığ, Gaziantep, Hatay, Kahramanmaraş, Kilis, Malatya, Osmaniye ve Şanlıurfa illerinde ikamet ediyorsanız veya bu illerdeki bir liseden mezunsanız, sizin için ayrılan Depremzede Aday Kontenjanı&apos;ndan faydalanabilirsiniz. Ancak, hâlihazırda herhangi bir yükseköğretim programına kayıtlıysanız, mezunsanız veya kaydınız silinmişse bu kontenjanı kullanamazsınız.`,
       },
       {
         subtitle: "Şehit ve Gazi Yakınları Kontenjanı",
@@ -103,7 +103,7 @@ const rehberData = [
         subtitle: "Bot Nasıl Çalışır?",
         content: (
           <>
-            <span className={styles.important}>Yapay zeka botumuz</span>, YKS sonuçlarınızı (<span className={styles.highlight}>puan</span>, <span className={styles.highlight}>başarı sırası</span>, <span className={styles.highlight}>OBP</span>) ve tercih eğilimlerinizi analiz ederek size en uygun üniversite ve bölümleri önerir. Sıralamanıza göre <span className={styles.important}>'Sürpriz'</span>, <span className={styles.important}>'Muhtemel'</span> ve <span className={styles.important}>'Güvenli'</span> olarak kategorize edilmiş tercih listeleri oluşturmanıza yardımcı olur. Bot, <span className={styles.highlight}>güncel kontenjan</span>, <span className={styles.highlight}>taban puan</span>, <span className={styles.highlight}>başarı sırası</span> ve <span className={styles.highlight}>özel kontenjan koşulları</span>nı da dikkate alır. Ayrıca, tercih listenizi oluştururken <span className={styles.important}>şehir</span>, <span className={styles.important}>burs</span>, <span className={styles.important}>üniversite türü</span> gibi filtrelerle aramanızı daraltabilir, <span className={styles.important}>karşılaştırma özelliği</span>yle iki veya daha fazla üniversiteyi detaylı olarak yan yana görebilirsiniz.
+            <span className={styles.important}>Yapay zeka botumuz</span>, YKS sonuçlarınızı (<span className={styles.highlight}>puan</span>, <span className={styles.highlight}>başarı sırası</span>, <span className={styles.highlight}>OBP</span>) ve tercih eğilimlerinizi analiz ederek size en uygun üniversite ve bölümleri önerir. Sıralamanıza göre <span className={styles.important}>&apos;Sürpriz&apos;</span>, <span className={styles.important}>&apos;Muhtemel&apos;</span> ve <span className={styles.important}>&apos;Güvenli&apos;</span> olarak kategorize edilmiş tercih listeleri oluşturmanıza yardımcı olur. Bot, <span className={styles.highlight}>güncel kontenjan</span>, <span className={styles.highlight}>taban puan</span>, <span className={styles.highlight}>başarı sırası</span> ve <span className={styles.highlight}>özel kontenjan koşulları</span>nı da dikkate alır. Ayrıca, tercih listenizi oluştururken <span className={styles.important}>şehir</span>, <span className={styles.important}>burs</span>, <span className={styles.important}>üniversite türü</span> gibi filtrelerle aramanızı daraltabilir, <span className={styles.important}>karşılaştırma özelliği</span>yle iki veya daha fazla üniversiteyi detaylı olarak yan yana görebilirsiniz.
           </>
         ),
       },
@@ -112,7 +112,7 @@ const rehberData = [
         content: (
           <ul className={styles.sssList}>
             <li><span className={styles.important}>Başarı sıranızı</span> ve <span className={styles.important}>puanınızı</span> eksiksiz girin.</li>
-            <li><span className={styles.important}>OBP'nizi</span> (lise diploma notu) ve mezun olduğunuz lise türünü belirtin.</li>
+            <li><span className={styles.important}>OBP&apos;nizi</span> (lise diploma notu) ve mezun olduğunuz lise türünü belirtin.</li>
             <li>Hedeflediğiniz <span className={styles.important}>şehirleri</span>, <span className={styles.important}>üniversite türlerini</span> (devlet, vakıf, KKTC vb.) ve <span className={styles.important}>bursluluk durumunu</span> seçin.</li>
             <li><span className={styles.important}>İlgi alanlarınızı</span> ve <span className={styles.important}>meslek hedeflerinizi</span> belirtin.</li>
             <li>Karşılaştırmak istediğiniz <span className={styles.important}>üniversite/bölümleri</span> seçerek detaylı analiz alın.</li>
