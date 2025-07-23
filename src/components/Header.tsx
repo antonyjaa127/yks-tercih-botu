@@ -42,12 +42,12 @@ export default function Header() {
               href="/karsilastir"
               className="text-gray-700 hover:text-blue-600 transition-colors font-medium relative"
             >
-              Karşılaştır
-              {comparisonItems.length > 0 && (
+                Karşılaştır
+                {comparisonItems.length > 0 && (
                 <span className="absolute -top-2 -right-4 bg-red-500 text-white text-xs rounded-full w-6 h-6 flex items-center justify-center font-semibold shadow">
-                  {comparisonItems.length}
-                </span>
-              )}
+                    {comparisonItems.length}
+                  </span>
+                )}
             </Link>
             <Link
               href="/tercihlerim"
@@ -60,6 +60,12 @@ export default function Header() {
               className="text-gray-700 hover:text-blue-600 transition-colors font-medium"
             >
               Rehber
+            </Link>
+            <Link
+              href="/feedback"
+              className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors font-medium"
+            >
+              Geri Bildirim
             </Link>
           </nav>
 
@@ -136,6 +142,13 @@ export default function Header() {
                 onClick={() => setIsMenuOpen(false)}
               >
                 Rehber
+              </Link>
+              <Link
+                href="/feedback"
+                className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors font-medium"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                Geri Bildirim
               </Link>
               <div className="pt-4 border-t border-gray-200">
                 <Link

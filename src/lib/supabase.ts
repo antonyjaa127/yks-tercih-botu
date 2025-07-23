@@ -3,9 +3,7 @@ import { createClient } from '@supabase/supabase-js'
 const supabaseUrl = 'https://oerjkuzytnyirkpqdeut.supabase.co'
 const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9lcmprdXp5dG55aXJrcHFkZXV0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTIzMzUxNDMsImV4cCI6MjA2NzkxMTE0M30.jTjZ0CoFjnWiPNzrq2nvnuY0d3ctzOexcZH3Qa6Nq3w'
 
-// Tüm log satırları kaldırıldı
-
-export const supabase = createClient(supabaseUrl, supabaseAnonKey)
+export const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 // Bağlantı testi fonksiyonu
 export const testSupabaseConnection = async () => {
