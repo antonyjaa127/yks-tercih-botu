@@ -490,7 +490,7 @@ function SearchPageContent() {
       </div>
     </div>
   )
-}
+} 
 
 export default function SearchPage() {
   return (

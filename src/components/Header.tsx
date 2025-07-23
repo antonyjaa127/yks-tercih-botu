@@ -25,7 +25,7 @@ export default function Header() {
           </Link>
 
           {/* Desktop Navigation */}
-          <nav className="hidden md:flex items-center space-x-6">
+          <nav className="hidden md:flex items-center space-x-8">
             <Link
               href="/"
               className="text-gray-700 hover:text-blue-600 transition-colors font-medium"
@@ -40,16 +40,20 @@ export default function Header() {
             </Link>
             <Link
               href="/karsilastir"
-              className="text-gray-700 hover:text-blue-600 transition-colors font-medium relative flex items-center"
+              className="text-gray-700 hover:text-blue-600 transition-colors font-medium relative"
             >
-              <span style={{ position: 'relative', display: 'inline-block', paddingRight: '18px' }}>
-                Karşılaştır
-                {comparisonItems.length > 0 && (
-                  <span style={{ position: 'absolute', top: '-10px', right: '-10px', background: '#ef4444', color: 'white', fontSize: '13px', borderRadius: '9999px', width: '24px', height: '24px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 600, boxShadow: '0 1px 4px rgba(0,0,0,0.08)' }}>
-                    {comparisonItems.length}
-                  </span>
-                )}
-              </span>
+              Karşılaştır
+              {comparisonItems.length > 0 && (
+                <span className="absolute -top-2 -right-4 bg-red-500 text-white text-xs rounded-full w-6 h-6 flex items-center justify-center font-semibold shadow">
+                  {comparisonItems.length}
+                </span>
+              )}
+            </Link>
+            <Link
+              href="/tercihlerim"
+              className="text-gray-700 hover:text-blue-600 transition-colors font-medium"
+            >
+              Tercih Listesi
             </Link>
             <Link
               href="/rehber"
@@ -118,6 +122,13 @@ export default function Header() {
                     {comparisonItems.length}
                   </span>
                 )}
+              </Link>
+              <Link
+                href="/tercihlerim"
+                className="text-gray-700 hover:text-blue-600 transition-colors font-medium"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                Tercih Listesi
               </Link>
               <Link
                 href="/rehber"

@@ -11,7 +11,7 @@ export default function PreferenceBar() {
   if (preferenceList.length === 0) return null
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 shadow-lg z-50">
+    <div className="fixed bottom-0 right-0 left-auto bg-white border-t border-gray-200 shadow-lg z-[110] w-full md:w-1/2 md:left-auto md:right-0 md:rounded-tl-xl">
       <div className="max-w-7xl mx-auto px-2 sm:px-4 lg:px-6">
         <div className="py-2">
           {/* Header Row */}

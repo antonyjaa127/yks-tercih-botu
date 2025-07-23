@@ -438,7 +438,7 @@ export async function GET(request: NextRequest) {
       
       // Burs durumu filtresi (ücretli için tüm varyasyonları ve agresif normalize arama)
       const bursStrings: Record<string, string[]> = {
-        'full': ['100'],
+        'full': ['100', 'tam burslu', 'tam'],
         'half': ['50'],
         'paid': ['ucretli', 'ucret', 'cretli', 'cret', 'ücretli', 'ücret'],
         '25': ['25'],

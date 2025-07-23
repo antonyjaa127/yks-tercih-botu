@@ -9,7 +9,7 @@ import PreferenceBar from '@/components/PreferenceBar'
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title: 'KesınGelir - YKS Üniversite Tercih Rehberi',
+  title: 'KesinGelir - YKS Üniversite Tercih Rehberi',
   description: 'YKS tercih döneminde size en uygun üniversite ve bölümleri bulun, karşılaştırın ve geleceğinize adım atın.',
   keywords: 'YKS, üniversite, tercih, rehber, bölüm, karşılaştırma',
 }

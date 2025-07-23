@@ -21,7 +21,10 @@ function getUniversityTypeBadge(university: University) {
 }
 
 function getScholarshipBadge(department: Department) {
-  if (department.scholarshipPercentage === 100) {
+  // Sadece (Burslu) yazıyorsa
+  if (department.scholarshipPercentage > 0 && /\(burslu\)/i.test(department.name) && !/%\d+/.test(department.name)) {
+    return <span className="bg-yellow-100 text-yellow-800 px-2 py-0.5 rounded-full text-xs font-medium">Burslu</span>
+  } else if (department.scholarshipPercentage === 100) {
     return <span className="bg-yellow-100 text-yellow-800 px-2 py-0.5 rounded-full text-xs font-medium">Tam Burslu</span>
   } else if (department.scholarshipPercentage === 50) {
     return <span className="bg-orange-100 text-orange-800 px-2 py-0.5 rounded-full text-xs font-medium">%50 Burslu</span>
@@ -64,16 +67,6 @@ export default function MinimalUniversityCard({ university, department }: Minima
           <span className="text-[11px] text-gray-500 font-semibold">Kontenjan</span>
           <span className="text-sm font-bold text-orange-700">{department.quota || '-'}</span>
         </div>
-      </div>
-      {/* Detay butonu */}
-      <div className="flex justify-end mt-1">
-        <Link
-          href={`/universite/${university.id}`}
-          className="inline-flex items-center px-3 py-1 text-xs font-semibold bg-blue-50 text-blue-700 rounded-md hover:bg-blue-100 border border-blue-100 transition-colors shadow-sm"
-        >
-          Detay
-          <ChevronRight className="w-4 h-4 ml-1" />
-        </Link>
       </div>
     </div>
   )
