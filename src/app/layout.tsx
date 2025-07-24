@@ -5,6 +5,7 @@ import Header from '@/components/Header'
 import ComparisonBar from '@/components/ComparisonBar'
 import ComparisonBarPaddingWrapper from '@/components/ComparisonBarPaddingWrapper'
 import PreferenceBar from '@/components/PreferenceBar'
+import { Analytics } from '@vercel/analytics/next'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -43,6 +44,7 @@ export default function RootLayout({
         </ComparisonBarPaddingWrapper>
         <ComparisonBar />
         <PreferenceBar />
+        <Analytics />
       </body>
     </html>
   )
