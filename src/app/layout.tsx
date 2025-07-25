@@ -34,7 +34,11 @@ export default function RootLayout({
         <meta name="twitter:title" content="KesinGelir - YKS Üniversite Tercih Rehberi" />
         <meta name="twitter:description" content="YKS tercih döneminde size en uygun üniversite ve bölümleri bulun, karşılaştırın ve geleceğinize adım atın." />
         <meta name="twitter:image" content="/favicon.ico" />
-        <link rel="icon" href="/favicon.ico" type="image/x-icon" />
+        <link rel="icon" href="/icon.svg" type="image/svg+xml" />
+        <link rel="shortcut icon" href="/icon.svg" />
+        <link rel="apple-touch-icon" href="/icon.svg" />
+        <link rel="icon" sizes="16x16" href="/icon.svg" />
+        <link rel="icon" sizes="32x32" href="/icon.svg" />
         <link rel="canonical" href="https://kesingelir.com/" />
       </head>
       <body className={inter.className}>
